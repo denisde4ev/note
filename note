@@ -1,0 +1,54 @@
+#!/bin/sh
+
+o=${0##*/}
+
+case $1 in --help|-h)
+printf %s\\n \
+	"Usage: $o [-d NOTE_DATE | -t TAG] [-n NOTE_NAME] [action]" \
+	"       $o tag [-d NOTE_DATE] <-t TAG> tag <tag action> [-n NOTE_NAME]" \
+	"" \
+	"actions:" \
+	" edit|comment       edit the note" \
+	" \$|exec|rmdir|...  execute command in the note path" \
+	" pwd                print the dir of the note path (default)" \
+	"" \
+	"tag actons:" \
+	" tag-note           add the note to the tag (symlink)" \
+	" mkdir"
+; exit
+esac
+	#`: " start|end|get "` \
+
+
+
+# log() {
+	# printf %s\\n "$o: $*"
+# }
+err() {
+	printf %s\\n "$o: err: $1" >&2
+	exit "${2-2}"
+}
+
+unset arg_d
+unset arg_n
+unset i
+OPTIND=
+while getopts d:n: i; do
+	case $i in
+		d) arg_d=$OPTARG;;
+		n) arg_n=$OPTARG;;
+		*) exit;;
+done
+
+case ${opt_d+x} in x)
+	wanted_date=$(
+		case $opt_d in
+			@*|*' '*) date -d "$opt_d" +%s;;
+			;;
+		esac
+	) || {
+		err "err in parging: '-d' '$opt_d'"
+	]
+	
+esac
+
