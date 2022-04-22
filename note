@@ -1,54 +1,238 @@
 #!/bin/sh
+set -eu
 
 o=${0##*/}
 
-case $1 in --help|-h)
+
+	# "" \
+	# "options:" \
+	# " -i   pass -i opt to external commands " \
+	# " -ii  extra interactive for creating dir/files" \
+case ${1-} in --help|-h)
 printf %s\\n \
-	"Usage: $o [-d NOTE_DATE | -t TAG] [-n NOTE_NAME] [action]" \
-	"       $o tag [-d NOTE_DATE] <-t TAG> tag <tag action> [-n NOTE_NAME]" \
+	"Usage: $o [-t TAG | -d NOTE_DATE]      <-n NOTE_NAME> [NOTE ACTION]" \
+	"       $o <-t TAG> [-d NOTE_DATE] [-f] [-n NOTE_NAME] <TAG ACTION> " \
 	"" \
-	"actions:" \
-	" edit|comment       edit the note" \
-	" \$|exec|rmdir|...  execute command in the note path" \
-	" pwd                print the dir of the note path (default)" \
+	"note actions:" \
+	"  edit|comment       edit the note (default)" \
 	"" \
 	"tag actons:" \
-	" tag-note           add the note to the tag (symlink)" \
-	" mkdir"
+	"  tag|tag-note       add the note to   the tag" \
+	"  untag|untag-note   del the note from the tag" \
+	"  tag-create|mkdir   create new tag" \
+	"  tag-delete         remove the tag (interactive, unless -f is specifyed)" \
+	"" \
+	"common actions:" \
+	"  \$|exec|rmdir      execute command in the note path" \
+	"  mkdir|ls|ll" \
+	"" \
+	"  pwd                print the dir of the note path (default) (-f will print non-existing dirs)" \
 ; exit
 esac
 	#`: " start|end|get "` \
 
 
 
-# log() {
-	# printf %s\\n "$o: $*"
-# }
+
+main_dir=${XDG_DATA_HOME:-"$HOME/.local/share"}/dd-note
+
+cd "$main_dir" || exit
+
+
+
+log() {
+	printf '\33[1m%s\33[m%s\n' "$o" ": $*"
+}
 err() {
-	printf %s\\n "$o: err: $1" >&2
+	printf '\33[1m%s\33[m%s\n' "$o" ": err: $1" >&2
 	exit "${2-2}"
 }
 
+
+unset action
+unset arg_t
+# unset arg_i
+# unset arg_ii
 unset arg_d
 unset arg_n
-unset i
-OPTIND=
-while getopts d:n: i; do
+unset arg_f
+{ while :; do
+	# parse args
+
+	unset i
+	OPTIND=1
+	while getopts t:d:n:f i; do
 	case $i in
+		t) arg_t=$OPTARG;;
+		# i) case ${arg_i+x} in x) arg_ii='';; *) arg_i=''; esac;;
 		d) arg_d=$OPTARG;;
 		n) arg_n=$OPTARG;;
-		*) exit;;
-done
+		f) arg_f='';;
+		*) exit 2;;
+	esac
+	done
+	shift $(( OPTIND - 1 ))
 
-case ${opt_d+x} in x)
-	wanted_date=$(
-		case $opt_d in
-			@*|*' '*) date -d "$opt_d" +%s;;
-			;;
-		esac
-	) || {
-		err "err in parging: '-d' '$opt_d'"
-	]
-	
+	${action+break}
+
+	# case $# in 0) err 'see --help'; esac
+	action=${1-pwd}
+	case $# in 0) ;; *) shift; esac
+
+
+	case $action in
+		tag|tag-note|untag|untag-note|tag-create|tag-delete)
+		# with those actions, arguments parsing continues
+			continue
+		;;
+		*)
+			break
+		;;
+	esac
+
+done; }
+
+
+
+unset date_dir
+{
+	# parse arg_d  -d DATE
+case ${arg_d-} in
+0|_) date_dir=_;;
+*)
+
+
+	unset i
+	case ${arg_d-} in
+		yesterday|d-[1-9]*) # TODO: test me
+			unset days_bef
+			case $arg_d in d-*) days_bef=${arg_d#"d-"}; esac
+			i=$(date -d "$i" +%s) && \
+			i=$(( i - 24*60*60 * ${days_bef-1} ))
+		;;
+		@*|*' '*) i=$arg_d;;
+	esac || {
+		err "err in parging: '-d', arg_d='$arg_d'"
+	}
+
+	date_dir=$(date ${i+-d "$i"} +%Y/%m/%d)
+	unset i
+
+
 esac
+}
+# arg "$arg_d"
 
+
+unset notename_dir
+{ while :; do # (break goto)
+	# parse arg_n  -n NOTE NAME
+
+	case ${arg_n+x} in '') break; esac
+
+	notename_dir=$arg_n
+
+	case $action in mkdir|rmdir|note-create|tag-create) break; esac
+
+	if [ -d "$date_dir"/"$arg_n" ]; then break; fi
+
+
+	notename_dir="$notename_dir"* # this is kept only if exist
+
+	if [ -d "$notename_dir" ]; then break; fi
+
+	err "dir='$date_dir"/"$arg_n' does not exist"
+	# unset notename_dir # todo: consider if this var shold be left unset?
+
+break; done; } # (break goto)
+
+
+
+# do not parse arg_t, but iterate over (sep by ',') it when needed
+
+## { # parse arg_t  -t TAG NAME
+## unset tag_dir
+## 	case ${arg_t+x} in x)
+## 
+## 	tag_dir=$arg_t;
+## 
+## 	esac
+## }
+
+
+
+unset notename_dir
+unset tag_dir
+# TODO:! `dir` var should be combination of all `( -t | -d || date today ) [-n]` options
+#                                                             date today <------ not well checked, TODO: review how errors in opts are detected:
+{
+	# for 'common actions'
+	# ask to specify eather -d or -t option
+
+	# TODO:! what should do if -t -d -n per every action
+
+	case $action in
+	$|exec|pwd|ls|ll|rmdir|mkdir) # parse args for (common actions)
+
+		case ${arg_t+t}:${arg_d+d}:${arg_n+n} in
+			::n|:d:n) dir=$date_dir/$notename_dir;;
+			:d:) dir=$date_dir;;
+			t::)
+				case $arg_t in *,*) ;; *) # if does not contain ','
+					dir=tag/$arg_t;;
+				esac
+			;;
+			::|t::n|t:d:|t:d:n)
+				err "for (common actions: '$action'), please specify (-n and -d) or -t options"
+				;;
+			*) err "! other ! err in action='$action'";;
+		esac
+		;;
+	tag|tag-note|untag|untag-note)
+		case ${arg_t+t}:${arg_d+d}:${arg_n+n} in
+			t:*:n) dir=$date_dir/$notename_dir;;
+			*) err "please specify all needed -t, [-d] and -n options";;
+
+		esac
+		;;
+	edit|comment)
+		case ${arg_t+t}:${arg_d+d}:${arg_n+n} in
+			t::n) dir=$arg_t/$arg_n;; # TODO: notename_dir var is expected to be not set here, fix this and parse (glob star end: 'name'*)
+			:d:n) dir=$date_dir/$notename_dir;;
+			*) err "for (note action: $action), please specify (-t or -d) and -n opts";;
+		esac
+		;;
+	esac
+}
+
+case $action in
+
+mkdir|rmdir)
+	exec "$action" "$@" "${dir?}"
+	;;
+
+edit|comment)
+	cd "${dir?}" || exit
+	exec "${EDITOR:-vi}" "$@" note.md
+	;;
+
+\$|exec|pwd|ls|ll)
+				# TODO:... when implement some stuf about tag options. support: `note -t 'tag1,tag2,tag3'`
+	case ${arg_f+x} in x)
+	case $action in
+		pwd) printf %s\\n "$PWD/$dir"; exit;;
+		*) log "opt -f takes no efect for the choosen action";;
+	esac
+	esac
+
+	cd "${dir?}" || exit
+	"$action" "$@"
+	exit
+	;;
+
+				# TODO:... when implement some stuf about tag options. support: `note -t 'tag1,tag2,tag3'`
+
+
+	*) err "acton '$action' not parsed (not all actions are currently implemented)";;
+
+esac
