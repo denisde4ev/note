@@ -1,0 +1,72 @@
+<html>
+-
+	// hard-coded vars
+	var note = [
+		{
+			name: 'note-1',
+			tags: [ { name: 'tag-1', val: 'tag-1-value' }, 'tag-2' ],
+			tag_str: 'tag-1=tag-1-val,tag-2,tag-3="tag 3 @ promblematic,value"',
+			inshort: 'A long day, \nin the guardian...',
+			content: 'A long day, \nin the guardian \nof my grandpa',
+		},
+		{
+			name: 'note-2',
+			tags: ['tag note 2'], // for now only array is expected, not null
+			inshort: '...'
+		},
+		{
+			name: 'note-3',
+			tags: [],
+			inshort: 'Nesciunt sit quia dolor. Dignissimos quo praesentium placeat dicta est ut. Repellendus vitae hic quo non neque sed est. Vel et blanditiis itaque quisquam. Fugit non fuga voluptatum.'
+		}
+	][0] //.find(v => v.name === '');
+head
+	meta(charset='utf-8')
+	title example note editing on web
+	meta(name='description' content='')
+	meta(name='viewport',content='width=device-width, initial-scale=1')
+
+	link(rel="stylesheet",href="note-edit.css")
+	//- link(rel="stylesheet",href="textarea-span.css")
+	//- script(src='textarea-resize.js')
+	script.
+		//const $ = document.querySelector.bind(document);
+		//const $$ = document.querySelectorAll.bind(document);
+		//Node.prototype.on = function (event, fn){ this.addEventListener(event, fn, false); return this; }
+
+	if (note_edit)
+		script.
+			if (new URL(location.href).searchParams.get('note-name') !== 'note-1') {
+				alert('NOTE: this page has hardcoded: "?note-name=note-1"')
+			}
+
+<body><div class="wrap">
+
+form(action="?note-name="+encodeURIComponent(note.name),method="post")
+	input(type='hidden',name='name',value=note.name)
+	h1.page-title= note_edit ? 'edit note: '+note.name : 'Create note'
+	.note-newname
+		label= note_edit ? 'Rename:' : 'Name:'
+			input(name='newname',value = note_edit ? note.name : '',required)
+
+	label.tags Tags:
+		//- if note_edit
+			each tag in note.tags
+				li.note-tag
+					if typeof tag === 'object'
+						span(title=tag.name+': '+tag.val)= tag.name
+					else
+						span= tag
+		input(name=tags,value= note_edit ? note.tag_str : '' )
+		// button.add-tag add tag // TODO: WITH JS 
+
+	br
+	label Content:
+		textarea(rows=10,autofocus).note-edit= note_edit ? note.content : ''
+
+	.d-flex-end.save-note-wapr
+		button.add-new-note= note_edit ? 'edit the note' : 'add new note' 
+
+
+
+</div></body></html>

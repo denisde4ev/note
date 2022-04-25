@@ -1,0 +1,142 @@
+
+/*
+ todo: cleanup some of rules un-needed for this page.
+ and move some to common file
+*/
+
+html {
+	color-scheme: light dark;
+}
+
+* {
+	margin: 0; 
+	padding: 0;
+	font-family: inherit;
+}
+
+/* .d-flex { */
+	/* display: flexbox */
+/* } */
+
+@media not (pointer: none) {
+	.sr-only-auto:not(:focus-visible) {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		border: 0;
+	}
+}
+
+body {
+	font-family: sans;
+	padding: .8rem;
+}
+
+
+.wrap {
+	margin-inline: max( 1rem, 20% - 10rem );
+}
+
+
+
+
+
+
+
+
+
+.page-title {
+	text-align: center;
+}
+
+.note-edit {
+	/* overflow: auto ;;; just leave the body scroll */
+	width: 100%;
+	height: min-content;
+}
+
+.note {
+	background-color: #8882;
+	border-radius: .5em;
+	/* padding: .5rem; */
+}
+
+.note + .note {
+	margin-top: .4rem;
+}
+
+
+.clear-fix::after, .note:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+
+
+.note-inshort, .note-name {
+	white-space: pre;
+	overflow: auto;
+}
+
+
+
+.note-content-flexbox {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+}
+.note-content-flexbox > * {
+	margin-block: .2em;
+}
+
+.note-content-flexbox .note-btns {
+	align-self: end;
+	margin-left: auto;  /* durty fix when wraps alone in line */
+}
+
+
+
+.note-tags {
+	float: right;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.note-tag + .note-tag:not(.js-added-separator)::before {
+	content: ","
+}
+
+.note-btns {
+	/* float: right; */
+}
+
+
+/* .right-margin, .notes .add-new-note { */
+	/* margin-left: auto; */
+/* } */
+
+.d-flex-end {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.notes .add-new-note {
+	margin-block: 1rem;
+	/* padding: .2rem; */
+}
+
+
+
+
+label.btn {
+	display: block;
+	padding: .5rem;
+	border-radius: .5em;
+}
+label.btn:hover { background: #8882 }
+/* label.btn:active { background: #0002	 } */
