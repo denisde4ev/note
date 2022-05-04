@@ -1,0 +1,109 @@
+doctype html
+-
+	// hard-coded vars
+	var notes = [
+		{
+			name: 'note-1',
+			tags: [ { name: 'tag-1', val: 'tag-1-value' }, 'tag-2' ],
+			inshort: 'A long day, \nin the guardian...'
+		},
+		{
+			name: 'note-2',
+			tags: ['tag note 2'], // for now only array is expected, not null
+			inshort: '...'
+		},
+		{
+			name: 'note-3',
+			tags: [],
+			inshort: 'Nesciunt sit quia dolor. Dignissimos quo praesentium placeat dicta est ut. Repellendus vitae hic quo non neque sed est. Vel et blanditiis itaque quisquam. Fugit non fuga voluptatum.'
+		}
+	];
+//- notes = [];
+head
+	meta(charset='utf-8')
+	title example note taking on web
+	//- meta(name='description' content='')
+	meta(name='viewport',content='width=device-width, initial-scale=1')
+
+	link(rel="stylesheet",href="style.css")
+
+	if (0)
+		script.
+			//const $ = document.querySelector.bind(document);
+			const $$ = document.querySelectorAll.bind(document);
+			Node.prototype.on = function (event, fn){ this.addEventListener(event, fn, false); return this; }
+			NodeList.prototype.on = function (event, fn){ this.forEach( function(v){v.on(event,fn)} ); return this; }
+	else
+		script(
+			src="https://cdn.jsdelivr.net/npm/umbrellajs",
+			integrity="sha256-9EHNCVdIKqH8p0nWeGkffpvEJ2E71S0MTudGuo9+pQA=",
+			crossorigin="anonymous"
+		)
+		// script const $=u;
+
+
+.wrap
+	h1.notes-page-title#notes-page-title(style='position:sticki') My Notes
+
+	ul.notes(aria-labelledby='notes-page-title')
+		if notes && notes.length
+			each note,i in notes
+				li.note
+					label.btn.js-transferclick(for="note-edit-"+i,role='none')
+						.d-flex-stretch
+							h3.note-name= note.name
+
+							ul.d-flex-stretch.note-tags(aria-label="note tags")
+								each tag in note.tags
+									li.note-tag
+										if typeof tag === 'object'
+											span(title=tag.name+': '+tag.val)= tag.name
+										else
+											span= tag
+
+							button.note-delete delete
+
+
+						.d-flex-stretch
+							p.note-inshort= note.inshort
+
+
+							a.sr-only-auto.note-edit(
+								id="note-edit-"+i,
+								href="./note-edit.html?note-name="+encodeURIComponent(note.name)
+							) edit
+		else
+			| no any notes
+
+	script.
+		var notes = {
+			handle_delete: function (e) {
+				event.stopPropagation();
+				this.closest('.note').remove();
+				event.preventDefault();
+				// the folowing code is for convinience
+				if (!u('.notes > .note').length) {
+					u('.notes').text('no any notes ');
+				}
+			}
+		}
+		
+		u('.note-tag + .note-tag:not(.js-added-separator)').each(v=>{
+			v.textContent = ',' + v.textContent;
+			v.classList.add('js-added-separator');
+		});
+		
+		u('label.js-transferclick').on('click', function(e){
+			if (e.target.closest('button,a,label,[tabindex]:not([tabindex="-1"])') !== this) return;
+			event.stopPropagation();
+			document.getElementById(this.getAttribute('for')).click();
+			event.preventDefault();
+		});
+		
+		u('.note-delete').on('click', notes.handle_delete);
+
+	.d-flex-end.add-new-note-wapr
+		a.add-new-note(href="note-create.html") create new note
+
+
+

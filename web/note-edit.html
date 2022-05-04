@@ -1,0 +1,41 @@
+<!DOCTYPE html><html>
+<head>
+  <meta charset="utf-8">
+  <title>example note editing on web</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="note-edit.css">
+  <script>
+    //const $ = document.querySelector.bind(document);
+    //const $$ = document.querySelectorAll.bind(document);
+    //Node.prototype.on = function (event, fn){ this.addEventListener(event, fn, false); return this; }
+    
+  </script>
+  <script>
+    if (new URL(location.href).searchParams.get('note-name') !== 'note-1') {
+    	alert('NOTE: this page has hardcoded: "?note-name=note-1"')
+    }
+    
+  </script>
+</head><body><div class="wrap">
+<form action="?note-name=note-1" method="post">
+  <input type="hidden" name="name" value="note-1">
+  <h1 class="page-title">edit note: note-1</h1>
+  <div class="note-newname">
+    <label>Rename:
+      <input name="newname" value="note-1" required>
+    </label>
+  </div>
+  <label class="tags">Tags:
+    <input value="tag-1=tag-1-val,tag-2,tag-3=&quot;tag 3 @ promblematic,value&quot;">
+    <!-- button.add-tag add tag // TODO: WITH JS -->
+  </label><br>
+  <label>Content:
+    <textarea class="note-edit" rows="10" autofocus>A long day, 
+in the guardian 
+of my grandpa</textarea>
+  </label>
+  <div class="d-flex-end save-note-wapr">
+    <button class="add-new-note">edit the note</button>
+  </div>
+</form></div></body></html>

@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+o=${0##*/}
+
+
+case ${1-} in --help|-h)
+printf %s\\n \
+	"Usage: $o edit" \
+	"" \
+	"note actions:" \
+	"  edit|comment       edit the note.md (default)" \
+; exit
+esac
+
+
+main_dir=${XDG_DATA_HOME:-"$HOME/.local/share"}/note
+
+cd "$main_dir" || exit
+
+unset action
+action=${1-pwd}
+case $# in 0) ;; *) shift;; esac
+
+case $action in
+
+edit|comment)
+	exec "${EDITOR:-vi}" "$@" note.md
+	;;
+	*) err "acton '$action' not parsed (not all actions are currently implemented)";;
+esac

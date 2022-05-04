@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>example note taking on web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/umbrellajs" integrity="sha256-9EHNCVdIKqH8p0nWeGkffpvEJ2E71S0MTudGuo9+pQA=" crossorigin="anonymous"></script>
+  <!-- script const $=u;-->
+</head>
+<div class="wrap">
+  <h1 class="notes-page-title" id="notes-page-title" style="position:sticki">My Notes</h1>
+  <ul class="notes" aria-labelledby="notes-page-title">
+    <li class="note">
+      <label class="btn js-transferclick" for="note-edit-0" role="none">
+        <div class="d-flex-stretch">
+          <h3 class="note-name">note-1</h3>
+          <ul class="d-flex-stretch note-tags" aria-label="note tags">
+            <li class="note-tag"><span title="tag-1: tag-1-value">tag-1</span>
+            </li>
+            <li class="note-tag"><span>tag-2</span>
+            </li>
+          </ul>
+          <button class="note-delete">delete</button>
+        </div>
+        <div class="d-flex-stretch">
+          <p class="note-inshort">A long day, 
+in the guardian...</p><a class="sr-only-auto note-edit" id="note-edit-0" href="./note-edit.html?note-name=note-1">edit</a>
+        </div>
+      </label>
+    </li>
+    <li class="note">
+      <label class="btn js-transferclick" for="note-edit-1" role="none">
+        <div class="d-flex-stretch">
+          <h3 class="note-name">note-2</h3>
+          <ul class="d-flex-stretch note-tags" aria-label="note tags">
+            <li class="note-tag"><span>tag note 2</span>
+            </li>
+          </ul>
+          <button class="note-delete">delete</button>
+        </div>
+        <div class="d-flex-stretch">
+          <p class="note-inshort">...</p><a class="sr-only-auto note-edit" id="note-edit-1" href="./note-edit.html?note-name=note-2">edit</a>
+        </div>
+      </label>
+    </li>
+    <li class="note">
+      <label class="btn js-transferclick" for="note-edit-2" role="none">
+        <div class="d-flex-stretch">
+          <h3 class="note-name">note-3</h3>
+          <ul class="d-flex-stretch note-tags" aria-label="note tags">
+          </ul>
+          <button class="note-delete">delete</button>
+        </div>
+        <div class="d-flex-stretch">
+          <p class="note-inshort">Nesciunt sit quia dolor. Dignissimos quo praesentium placeat dicta est ut. Repellendus vitae hic quo non neque sed est. Vel et blanditiis itaque quisquam. Fugit non fuga voluptatum.</p><a class="sr-only-auto note-edit" id="note-edit-2" href="./note-edit.html?note-name=note-3">edit</a>
+        </div>
+      </label>
+    </li>
+  </ul>
+  <script>
+    var notes = {
+    	handle_delete: function (e) {
+    		event.stopPropagation();
+    		this.closest('.note').remove();
+    		event.preventDefault();
+    		// the folowing code is for convinience
+    		if (!u('.notes > .note').length) {
+    			u('.notes').text('no any notes ');
+    		}
+    	}
+    }
+    
+    u('.note-tag + .note-tag:not(.js-added-separator)').each(v=>{
+    	v.textContent = ',' + v.textContent;
+    	v.classList.add('js-added-separator');
+    });
+    
+    u('label.js-transferclick').on('click', function(e){
+    	if (e.target.closest('button,a,label,[tabindex]:not([tabindex="-1"])') !== this) return;
+    	event.stopPropagation();
+    	document.getElementById(this.getAttribute('for')).click();
+    	event.preventDefault();
+    });
+    
+    u('.note-delete').on('click', notes.handle_delete);
+    
+  </script>
+  <div class="d-flex-end add-new-note-wapr"><a class="add-new-note" href="note-create.html">create new note</a></div>
+</div>
