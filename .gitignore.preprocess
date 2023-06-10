@@ -1,0 +1,6 @@
+
+!! echo "# this is generated on '$(date -Im)' by FILE='${__FILE__}'"
+
+
+
+!! curl -sL https://www.toptal.com/developers/gitignore/api/node
